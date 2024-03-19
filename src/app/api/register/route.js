@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 import User from '@/models/User'
 import { NextResponse } from 'next/server'
 
-export default async function POST(req) {
+export async function POST(req) {
   const body = await req.json()
   mongoose.connect(process.env.MONGODB_URI)
 
