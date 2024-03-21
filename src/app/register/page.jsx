@@ -6,29 +6,29 @@ import { useRouter } from 'next/navigation'
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
   const router = useRouter()
 
   async function handleFormSubmit(ev) {
     ev.preventDefault()
-    setError(false)
 
-    const response = await fetch('/api/register', {
+    const res = await fetch('/api/register', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
       headers: { 'Content-Type': 'application/json' },
     })
 
-    if (response.ok) {
+    if (res.ok) {
+      router.refresh()
       router.push('/login')
     } else {
-      setError(true)
+      const { message } = await res.json()
+      setErrorMsg(message)
     }
   }
   return (
     <section>
       <h1>Register</h1>
-      {error && <div>ERROR</div>}
       <form onSubmit={handleFormSubmit}>
         <input
           type="email"
@@ -44,6 +44,7 @@ export default function RegisterPage() {
         />
         <button type="submit">Register</button>
       </form>
+      <div>{errorMsg}</div>
     </section>
   )
 }
