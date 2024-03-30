@@ -1,24 +1,41 @@
 import bcrypt from 'bcrypt'
-import mongoose from 'mongoose'
 import User from '@/models/User'
 import { NextResponse } from 'next/server'
+import { connect } from '@/utils/dbConfig'
 
 export async function POST(req) {
-  const body = await req.json()
-  mongoose.connect(process.env.MONGODB_URI)
+  try {
+    const { email, password } = await req.json()
 
-  const { password } = body
-  if (!password?.length || password.length < 5) {
+    if (!password?.length || password.length < 5) {
+      return NextResponse.json(
+        { message: 'password must be at least 5 characters' },
+        { status: 400 },
+      )
+    }
+
+    await connect()
+    const userExists = await User.findOne({ email })
+    if (userExists) {
+      return NextResponse.json(
+        { error: 'User already exists' },
+        { status: 409 },
+      )
+    }
+
+    const salt = bcrypt.genSaltSync(10)
+    const hashedPassword = bcrypt.hashSync(password, salt)
+
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+    })
+    return NextResponse.json(newUser)
+  } catch (error) {
+    console.error(error.message)
     return NextResponse.json(
-      { message: 'password must be at least 5 characters' },
-      { status: 400 },
+      { error: 'Account creation failed' },
+      { status: 500 },
     )
   }
-
-  const notHashedPassword = password
-  const salt = bcrypt.genSaltSync(10)
-  body.password = bcrypt.hashSync(notHashedPassword, salt)
-
-  const newUser = await User.create(body)
-  return NextResponse.json(newUser)
 }

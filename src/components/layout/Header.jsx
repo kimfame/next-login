@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { signOut, useSession } from 'next-auth/react'
 
 export default function Header() {
-  const { data, status } = useSession()
+  const { data: session, status } = useSession()
 
   if (status === 'authenticated') {
     return (
@@ -14,7 +14,7 @@ export default function Header() {
           <button type="button" onClick={() => signOut()}>
             Logout
           </button>
-          <p>User : {data ? data.user.email : 'No data'}</p>
+          <p>User : {session ? session.user.email : 'No data'}</p>
         </nav>
       </header>
     )

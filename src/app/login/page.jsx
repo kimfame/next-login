@@ -30,6 +30,12 @@ export default function LoginPage() {
           onChange={(ev) => setPassword(ev.target.value)}
         />
         <button type="submit">Login</button>
+        <button
+          type="button"
+          onClick={() => signIn('google', { callbackUrl: '/' })}
+        >
+          Google Login
+        </button>
       </form>
     </section>
   )
