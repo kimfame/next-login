@@ -5,7 +5,14 @@ import { connect } from '@/utils/dbConfig'
 
 export async function POST(req) {
   try {
-    const { email, password } = await req.json()
+    const { name, email, password } = await req.json()
+
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { message: 'All fields are required.' },
+        { status: 400 },
+      )
+    }
 
     if (!password?.length || password.length < 5) {
       return NextResponse.json(
@@ -26,13 +33,14 @@ export async function POST(req) {
     const salt = bcrypt.genSaltSync(10)
     const hashedPassword = bcrypt.hashSync(password, salt)
 
-    const newUser = await User.create({
+    await User.create({
+      name,
       email,
       password: hashedPassword,
     })
-    return NextResponse.json(newUser)
+    return NextResponse.json({ message: 'User Created.' }, { status: 201 })
   } catch (error) {
-    console.error(error.message)
+    console.error(error)
     return NextResponse.json(
       { error: 'Account creation failed' },
       { status: 500 },
