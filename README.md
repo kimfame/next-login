@@ -10,6 +10,12 @@ NEXTAUTH_URL=
 NEXTAUTH_SECRET=
 ```
 
+NEXTAUTH_SECRET Generator example
+
+```bash
+openssl rand -base64 32
+```
+
 ## Getting Started
 
 Run the development server:
