@@ -22,7 +22,8 @@ export async function POST(req) {
     }
 
     await connect()
-    const userExists = await User.findOne({ email })
+    const userExists = await User.findOne({ email }).lean().exec()
+
     if (userExists) {
       return NextResponse.json(
         { error: 'User already exists' },

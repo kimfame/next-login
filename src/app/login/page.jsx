@@ -4,30 +4,47 @@ import { signIn } from 'next-auth/react'
 import { useState } from 'react'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [formData, setFormData] = useState({
+    name: '',
+    password: '',
+  })
 
-  async function handleFormSubmit(ev) {
+  function handleChange(e) {
+    const { name, value } = e.target
+
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }))
+  }
+
+  async function handleSubmit(ev) {
     ev.preventDefault()
-    await signIn('credentials', { email, password, callbackUrl: '/' })
+
+    if (formData?.email && formData?.password) {
+      await signIn('credentials', {
+        ...formData,
+        callbackUrl: '/',
+      })
+    }
   }
   return (
     <section>
       <h1>Login</h1>
-      <form onSubmit={handleFormSubmit}>
+      <form onSubmit={handleSubmit}>
         <input
           type="email"
           name="email"
           placeholder="email"
-          value={email}
-          onChange={(ev) => setEmail(ev.target.value)}
+          value={formData.email || ''}
+          onChange={handleChange}
         />
         <input
           type="password"
           name="password"
           placeholder="password"
-          value={password}
-          onChange={(ev) => setPassword(ev.target.value)}
+          value={formData.password || ''}
+          onChange={handleChange}
         />
         <button type="submit">Login</button>
         <button

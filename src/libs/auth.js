@@ -19,20 +19,28 @@ export const authOptions = {
           type: 'email',
           placeholder: 'test@example.com',
         },
-        password: { label: 'Password', type: 'password' },
+        password: {
+          label: 'Password',
+          type: 'password',
+          placeholder: 'password',
+        },
       },
       async authorize(credentials) {
-        const email = credentials?.email
-        const password = credentials?.password
+        try {
+          const email = credentials?.email
+          const password = credentials?.password
 
-        await connect()
-        const user = await User.findOne({ email })
-        const passwordOk = user && bcrypt.compareSync(password, user.password)
+          await connect()
+          const user = await User.findOne({ email }).lean().exec()
+          const passwordOk = user && bcrypt.compareSync(password, user.password)
 
-        if (passwordOk) {
-          return user
+          if (passwordOk) {
+            delete user.password
+            return user
+          }
+        } catch (error) {
+          console.error(error)
         }
-
         return null
       },
     }),
