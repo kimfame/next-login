@@ -5,29 +5,28 @@ import { signOut, useSession } from 'next-auth/react'
 
 export default function Header() {
   const { data: session, status } = useSession()
-
-  if (status === 'authenticated') {
-    return (
-      <header>
-        <nav>
-          <Link href="/">Home</Link>
-          <button type="button" onClick={() => signOut()}>
-            Logout
-          </button>
-          <p>User : {session ? session.user.email : 'No data'}</p>
-        </nav>
-      </header>
-    )
-  }
+  const loading = status === 'loading'
 
   return (
     <header>
-      <nav>
+      <nav className="flex items-center gap-8 py-8">
         <Link href="/">Home</Link>
-        <Link href="/login">Login</Link>
-        <Link href="/register">Register</Link>
-        <p>User : None</p>
+        {session ? (
+          <>
+            <button type="button" onClick={() => signOut()}>
+              Logout
+            </button>
+            <Link href="/">Hello, {session?.user?.name}</Link>
+          </>
+        ) : (
+          <>
+            <Link href="/login">Login</Link>
+            <Link href="/register">Register</Link>
+          </>
+        )}
       </nav>
+
+      <p>{loading && 'Loading...'}</p>
     </header>
   )
 }

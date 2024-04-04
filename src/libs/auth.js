@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 import User from '@/models/User'
 import { connect } from '@/utils/dbConfig'
+import { getServerSession } from 'next-auth'
 
 export const authOptions = {
   secret: process.env.SECRET,
@@ -51,6 +52,7 @@ export const authOptions = {
       const sessionUser = await User.findOne({ email: session.user.email })
 
       newSession.user.id = sessionUser._id
+      newSession.user.role = sessionUser.role
       return newSession
     },
     async signIn({ account, profile }) {
@@ -71,7 +73,7 @@ export const authOptions = {
           }
           return true
         } catch (error) {
-          console.log(error)
+          console.error(error)
         }
       } else if (account.provider === 'credentials') {
         return true
@@ -80,4 +82,18 @@ export const authOptions = {
       return false
     },
   },
+}
+
+export async function isAdmin() {
+  const session = await getServerSession(authOptions)
+  const email = session?.user?.email
+  if (!email) {
+    return false
+  }
+
+  const user = await User.findOne({ email }).lean().exec()
+  if (!user) {
+    return false
+  }
+  return user.role === 'ADMIN'
 }
